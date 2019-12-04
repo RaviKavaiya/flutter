@@ -140,7 +140,6 @@ void main() {
         environment: anyNamed('environment'),
         workingDirectory: anyNamed('workingDirectory'),
       ));
-      expect(testLogger.statusText, contains('Flutter is already up to date'));
     }, overrides: <Type, Generator>{
       ProcessManager: () => processManager,
       Platform: () => fakePlatform,

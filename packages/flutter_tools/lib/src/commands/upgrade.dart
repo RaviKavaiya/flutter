@@ -119,8 +119,7 @@ class UpgradeCommandRunner {
     final bool alreadyUpToDate = await attemptFastForward(flutterVersion);
     if (alreadyUpToDate) {
       // If the upgrade was a no op, then do not continue with the second half.
-      printStatus('Flutter is already up to date on channel ${flutterVersion.channel}');
-      printStatus('$flutterVersion');
+      printTrace('Flutter is already up to date on channel ${flutterVersion.channel}');
     } else {
       await flutterUpgradeContinue();
     }
