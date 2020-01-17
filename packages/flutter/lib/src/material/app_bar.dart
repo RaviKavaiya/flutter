@@ -27,18 +27,16 @@ const double _kLeadingWidth = kToolbarHeight; // So the leading button is square
 
 // Bottom justify the kToolbarHeight child which may overflow the top.
 class _ToolbarContainerLayout extends SingleChildLayoutDelegate {
-  const _ToolbarContainerLayout(this.titleHeight) : assert(titleHeight != null);
-
-  final double titleHeight;
+  const _ToolbarContainerLayout();
 
   @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
-    return constraints.tighten(height: titleHeight);
+    return constraints.tighten(height: kToolbarHeight);
   }
 
   @override
   Size getSize(BoxConstraints constraints) {
-    return Size(constraints.maxWidth, titleHeight);
+    return Size(constraints.maxWidth, kToolbarHeight);
   }
 
   @override
@@ -47,7 +45,7 @@ class _ToolbarContainerLayout extends SingleChildLayoutDelegate {
   }
 
   @override
-  bool shouldRelayout(_ToolbarContainerLayout oldDelegate) => titleHeight != oldDelegate.titleHeight;
+  bool shouldRelayout(_ToolbarContainerLayout oldDelegate) => false;
 }
 
 // TODO(eseidel): Toolbar needs to change size based on orientation:
@@ -196,19 +194,15 @@ class AppBar extends StatefulWidget implements PreferredSizeWidget {
     this.primary = true,
     this.centerTitle,
     this.titleSpacing = NavigationToolbar.kMiddleSpacing,
-    this.titleHeight = kToolbarHeight,
-    this.centerIcons = true,
     this.toolbarOpacity = 1.0,
     this.bottomOpacity = 1.0,
   }) : assert(automaticallyImplyLeading != null),
        assert(elevation == null || elevation >= 0.0),
        assert(primary != null),
        assert(titleSpacing != null),
-       assert(titleHeight != null),
-       assert(centerIcons != null),
        assert(toolbarOpacity != null),
        assert(bottomOpacity != null),
-       preferredSize = Size.fromHeight(titleHeight + (bottom?.preferredSize?.height ?? 0.0)),
+       preferredSize = Size.fromHeight(kToolbarHeight + (bottom?.preferredSize?.height ?? 0.0)),
        super(key: key);
 
   /// A widget to display before the [title].
@@ -364,20 +358,6 @@ class AppBar extends StatefulWidget implements PreferredSizeWidget {
   ///
   /// Defaults to [NavigationToolbar.kMiddleSpacing].
   final double titleSpacing;
-
-  /// The height used for the [title].
-  ///
-  /// This value must not be null, and defaults to [kToolbarHeight].
-  final double titleHeight;
-
-  /// Whether [leading] and [actions] should always be placed vertically center.
-  /// If [titleHeight] is not modified, this option has NO effect.
-  ///
-  /// If true, [leading] and [actions] are always placed vertically center.
-  /// If false, icons will be placed on top.
-  ///
-  /// Defaults to true.
-  final bool centerIcons;
 
   /// How opaque the toolbar part of the app bar is.
   ///
@@ -548,15 +528,13 @@ class _AppBarState extends State<AppBar> {
       trailing: actions,
       centerMiddle: widget._getEffectiveCenterTitle(theme),
       middleSpacing: widget.titleSpacing,
-      defaultToolbarHeight: kToolbarHeight,
-      centerIcons: widget.centerIcons,
     );
 
-    // If the toolbar is allocated less than titleHeight make it
+    // If the toolbar is allocated less than kToolbarHeight make it
     // appear to scroll upwards within its shrinking container.
     Widget appBar = ClipRect(
       child: CustomSingleChildLayout(
-        delegate: _ToolbarContainerLayout(widget.titleHeight),
+        delegate: const _ToolbarContainerLayout(),
         child: IconTheme.merge(
           data: overallIconTheme,
           child: DefaultTextStyle(
@@ -572,7 +550,7 @@ class _AppBarState extends State<AppBar> {
         children: <Widget>[
           Flexible(
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: widget.titleHeight),
+              constraints: const BoxConstraints(maxHeight: kToolbarHeight),
               child: appBar,
             ),
           ),
@@ -708,8 +686,6 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
     @required this.primary,
     @required this.centerTitle,
     @required this.titleSpacing,
-    @required this.titleHeight,
-    @required this.centerIcons,
     @required this.expandedHeight,
     @required this.collapsedHeight,
     @required this.topPadding,
@@ -719,8 +695,6 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
     @required this.stretchConfiguration,
     @required this.shape,
   }) : assert(primary || topPadding == 0.0),
-       assert(titleHeight != null),
-       assert(centerIcons != null),
        _bottomHeight = bottom?.preferredSize?.height ?? 0.0;
 
   final Widget leading;
@@ -739,8 +713,6 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   final bool primary;
   final bool centerTitle;
   final double titleSpacing;
-  final double titleHeight;
-  final bool centerIcons;
   final double expandedHeight;
   final double collapsedHeight;
   final double topPadding;
@@ -751,10 +723,10 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   final double _bottomHeight;
 
   @override
-  double get minExtent => collapsedHeight ?? (topPadding + titleHeight + _bottomHeight);
+  double get minExtent => collapsedHeight ?? (topPadding + kToolbarHeight + _bottomHeight);
 
   @override
-  double get maxExtent => math.max(topPadding + (expandedHeight ?? titleHeight + _bottomHeight), minExtent);
+  double get maxExtent => math.max(topPadding + (expandedHeight ?? kToolbarHeight + _bottomHeight), minExtent);
 
   @override
   final FloatingHeaderSnapConfiguration snapConfiguration;
@@ -779,6 +751,7 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
     //    1   |    1     |        1       ||  fade
     final double toolbarOpacity = !pinned || (floating && bottom != null)
 <<<<<<< HEAD
+<<<<<<< HEAD
       ? ((visibleMainHeight - _bottomHeight) / kToolbarHeight).clamp(0.0, 1.0) as double
 =======
 <<<<<<< HEAD
@@ -787,6 +760,9 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
       ? ((visibleMainHeight - _bottomHeight) / titleHeight).clamp(0.0, 1.0) as double
 >>>>>>> 76feca104... AppBar can now have custom titleHeight
 >>>>>>> AppBar can now have custom titleHeight
+=======
+      ? ((visibleMainHeight - _bottomHeight) / kToolbarHeight).clamp(0.0, 1.0)
+>>>>>>> Revert "AppBar can now have custom titleHeight"
       : 1.0;
 
     final Widget appBar = FlexibleSpaceBar.createSettings(
@@ -812,8 +788,6 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
         primary: primary,
         centerTitle: centerTitle,
         titleSpacing: titleSpacing,
-        titleHeight: titleHeight,
-        centerIcons: centerIcons,
         shape: shape,
         toolbarOpacity: toolbarOpacity,
         bottomOpacity: pinned ? 1.0 : ((visibleMainHeight / _bottomHeight).clamp(0.0, 1.0) as double),
@@ -840,8 +814,6 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
         || primary != oldDelegate.primary
         || centerTitle != oldDelegate.centerTitle
         || titleSpacing != oldDelegate.titleSpacing
-        || titleHeight != oldDelegate.titleHeight
-        || centerIcons != oldDelegate.centerIcons
         || expandedHeight != oldDelegate.expandedHeight
         || topPadding != oldDelegate.topPadding
         || pinned != oldDelegate.pinned
@@ -957,8 +929,6 @@ class SliverAppBar extends StatefulWidget {
     this.primary = true,
     this.centerTitle,
     this.titleSpacing = NavigationToolbar.kMiddleSpacing,
-    this.titleHeight = kToolbarHeight,
-    this.centerIcons = true,
     this.expandedHeight,
     this.floating = false,
     this.pinned = false,
@@ -971,8 +941,6 @@ class SliverAppBar extends StatefulWidget {
        assert(forceElevated != null),
        assert(primary != null),
        assert(titleSpacing != null),
-       assert(titleHeight != null),
-       assert(centerIcons != null),
        assert(floating != null),
        assert(pinned != null),
        assert(snap != null),
@@ -1130,20 +1098,6 @@ class SliverAppBar extends StatefulWidget {
   ///
   /// Defaults to [NavigationToolbar.kMiddleSpacing].
   final double titleSpacing;
-
-  /// The height used for the [title].
-  ///
-  /// This value must not be null, and defaults to [kToolbarHeight].
-  final double titleHeight;
-
-  /// Whether [leading] and [actions] should always be placed vertically center.
-  /// If [titleHeight] is not modified, this option has NO effect.
-  ///
-  /// If true, [leading] and [actions] are always placed vertically center.
-  /// If false, icons will be placed on top.
-  ///
-  /// Defaults to true.
-  final bool centerIcons;
 
   /// The size of the app bar when it is fully expanded.
   ///
@@ -1328,8 +1282,6 @@ class _SliverAppBarState extends State<SliverAppBar> with TickerProviderStateMix
           primary: widget.primary,
           centerTitle: widget.centerTitle,
           titleSpacing: widget.titleSpacing,
-          titleHeight: widget.titleHeight,
-          centerIcons: widget.centerIcons,
           expandedHeight: widget.expandedHeight,
           collapsedHeight: collapsedHeight,
           topPadding: topPadding,
